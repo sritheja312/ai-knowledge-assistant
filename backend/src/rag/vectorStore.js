@@ -14,14 +14,40 @@ async function storeDocuments(documents) {
   if (!documents || documents.length === 0) {
     return {
       insertedCount: 0,
+      modifiedCount: 0,
     };
   }
 
-  const result = await collection.insertMany(documents);
+  let insertedCount = 0;
+  let modifiedCount = 0;
+
+  for (const document of documents) {
+    const result = await collection.updateOne(
+      {
+        fileName: document.fileName,
+        chunkIndex: document.chunkIndex,
+      },
+      {
+        $set: {
+          text: document.text,
+          embedding: document.embedding,
+        },
+      },
+      {
+        upsert: true,
+      }
+    );
+
+    if (result.upsertedCount === 1) {
+      insertedCount++;
+    } else if (result.modifiedCount === 1) {
+      modifiedCount++;
+    }
+  }
 
   return {
-    insertedCount: result.insertedCount,
-    insertedIds: result.insertedIds,
+    insertedCount,
+    modifiedCount,
   };
 }
 
