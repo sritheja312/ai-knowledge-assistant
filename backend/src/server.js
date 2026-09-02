@@ -4,11 +4,13 @@ const cors = require("cors");
 
 const { connectDatabase } = require("./database");
 const documentRoutes = require("./routes/documentRoutes");
+const ragRoutes = require("./routes/ragRoutes");
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 app.use("/api/documents", documentRoutes);
+app.use("/api/rag", ragRoutes);
 
 const PORT = process.env.PORT || 5000;
 
